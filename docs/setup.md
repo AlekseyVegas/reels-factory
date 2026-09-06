@@ -3,8 +3,9 @@
 ## Зависимости
 
 - **ffmpeg / ffprobe** — резка, склейка, звук, субтитры.
-- **Python 3.10+** — стандартная библиотека, дополнительных пакетов не требуется.
+- **Python 3.10+** — плюс библиотека `Pillow` (`pip install pillow`), нужна для автоподбора размера субтитров.
 - **whisper.cpp** — офлайн-распознавание речи (движок `whisper-cli` + модель `ggml-*.bin`).
+- **Шрифт для субтитров** — см. раздел ниже.
 
 ## whisper.cpp
 
@@ -39,6 +40,22 @@ export WHISPER_MODEL=~/.whisper-models/ggml-medium.bin
 ```
 
 Либо передавать флагами `--whisper-bin` / `--model` в `transcribe.py`.
+
+## Шрифт для субтитров
+
+`captions.py` по умолчанию ищет шрифт `fonts/Montserrat-Black.otf` (рядом с папкой `tools/`, семейство `Montserrat Black`) — свободный шрифт (лицензия SIL OFL 1.1) с полной поддержкой кириллицы. В самом репозитории бинарный файл шрифта не хранится — скачай его один раз:
+
+```bash
+mkdir -p fonts
+curl -L -o fonts/Montserrat-Black.otf \
+  "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/static/Montserrat-Black.ttf"
+```
+
+Если файл по этой ссылке недоступен (Google периодически меняет структуру репозитория), найди актуальную ссылку на странице [fonts.google.com/specimen/Montserrat](https://fonts.google.com/specimen/Montserrat) → «Download family» → взять файл веса Black (900) из папки `static/`.
+
+После скачивания можно проверить, как система видит имя шрифта (`fc-scan fonts/Montserrat-Black.otf | grep fullname`) — если оно отличается от `Montserrat Black`, передай реальное имя через флаг `--font` у `captions.py`.
+
+Хочешь другой шрифт/стиль — подойдёт любой `.ttf`/`.otf` с поддержкой кириллицы, просто укажи путь через `--font-file` и имя семейства через `--font`.
 
 ## Проверка
 
