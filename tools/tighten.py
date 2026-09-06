@@ -36,9 +36,15 @@ def find_silences(path: Path, noise_db: str, min_silence: float) -> list[tuple[f
          "-f", "null", "-"],
         capture_output=True, text=True,
     )
+    # ВАЖНО: ffmpeg иногда репортит silence_start чуть раньше нуля
+    # (например, "-0.0077"), если пауза начинается прямо в первом кадре
+    # записи. Без знака "-" в регулярке эта пауза терялась, счётчики
+    # start/end расходились на единицу, и zip() склеивал каждый start со
+    # start/end СОСЕДНЕЙ паузы — получались вложенные друг в друга куски
+    # и итоговая длина больше исходной.
     log = proc.stderr
-    starts = [float(x) for x in re.findall(r"silence_start:\s*([0-9.]+)", log)]
-    ends = [float(x) for x in re.findall(r"silence_end:\s*([0-9.]+)", log)]
+    starts = [max(0.0, float(x)) for x in re.findall(r"silence_start:\s*(-?[0-9.]+)", log)]
+    ends = [float(x) for x in re.findall(r"silence_end:\s*(-?[0-9.]+)", log)]
     return list(zip(starts, ends))
 
 
