@@ -43,15 +43,15 @@ export WHISPER_MODEL=~/.whisper-models/ggml-medium.bin
 
 ## Шрифт для субтитров
 
-`captions.py` по умолчанию ищет шрифт `fonts/Montserrat-Black.otf` (рядом с папкой `tools/`, семейство `Montserrat Black`) — свободный шрифт (лицензия SIL OFL 1.1) с полной поддержкой кириллицы. В самом репозитории бинарный файл шрифта не хранится — скачай его один раз:
+`captions.py` по умолчанию ищет шрифт `fonts/Montserrat-Black.otf` (рядом с папкой `tools/`, семейство `Montserrat Black`) — свободный шрифт (лицензия SIL OFL 1.1) с полной поддержкой кириллицы. В самом репозитории бинарный файл шрифта не хранится — скачай его один раз из канонического репозитория автора шрифта:
 
 ```bash
 mkdir -p fonts
 curl -L -o fonts/Montserrat-Black.otf \
-  "https://raw.githubusercontent.com/google/fonts/main/ofl/montserrat/static/Montserrat-Black.ttf"
+  "https://raw.githubusercontent.com/JulietaUla/Montserrat/master/fonts/otf/Montserrat-Black.otf"
 ```
 
-Если файл по этой ссылке недоступен (Google периодически меняет структуру репозитория), найди актуальную ссылку на странице [fonts.google.com/specimen/Montserrat](https://fonts.google.com/specimen/Montserrat) → «Download family» → взять файл веса Black (900) из папки `static/`.
+Если файл по этой ссылке недоступен, найди актуальную ссылку прямо в репозитории [github.com/JulietaUla/Montserrat](https://github.com/JulietaUla/Montserrat) (папка `fonts/otf/`) либо на странице [fonts.google.com/specimen/Montserrat](https://fonts.google.com/specimen/Montserrat) → «Download family» → взять файл веса Black (900).
 
 После скачивания можно проверить, как система видит имя шрифта (`fc-scan fonts/Montserrat-Black.otf | grep fullname`) — если оно отличается от `Montserrat Black`, передай реальное имя через флаг `--font` у `captions.py`.
 
