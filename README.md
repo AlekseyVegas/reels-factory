@@ -9,6 +9,7 @@
 - `tools/transcribe.py` — распознаёт речь в видео/аудио через whisper.cpp (офлайн) и выдаёт `words.json`: список слов с таймкодами. Это единый источник правды для всех следующих шагов.
 - `tools/tighten.py` — вырезает реальные паузы тишины (по анализу громкости через ffmpeg), не трогая слова.
 - `tools/captions.py` — накладывает субтитры на видео по `words.json` (генерирует `.ass`-субтитры и прожигает их через ffmpeg). Размер холста под субтитры подхватывается автоматически из самого видео.
+- `tools/render_reels.py` — финальный шаг: приводит видео к формату Reels (1080×1920, 30fps, h264, yuv420p, faststart). Если исходник не вертикальный, заполняет пустые поля размытым увеличенным фоном (можно переключить на чёрные поля или обрезку по центру).
 
 ## Порядок использования
 
@@ -22,7 +23,10 @@ python tools/tighten.py --in raw.mp4 --out tight.mp4
 python tools/transcribe.py --in tight.mp4 --out words.json
 
 # 3. Накладываем субтитры по свежим таймкодам
-python tools/captions.py --in tight.mp4 --words words.json --out final.mp4
+python tools/captions.py --in tight.mp4 --words words.json --out final_subs.mp4
+
+# 4. Приводим к финальному формату Reels
+python tools/render_reels.py --in final_subs.mp4 --out reel_v1.mp4
 ```
 
 Подробности установки зависимостей (whisper.cpp, модель, ffmpeg) — в [`docs/setup.md`](docs/setup.md).
@@ -32,7 +36,7 @@ python tools/captions.py --in tight.mp4 --words words.json --out final.mp4
 - [x] Транскрипция (whisper.cpp, офлайн)
 - [x] Нарезка по паузам
 - [x] Субтитры (ffmpeg + ass, без Remotion/Node)
-- [ ] Оверлеи/b-roll
-- [ ] Финальный рендер под формат Reels (1080×1920)
+- [x] Финальный рендер под формат Reels (1080×1920, режимы blur/pad/crop)
+- [ ] Оверлеи/b-roll (подбор вставок из своей видеотеки)
 - [ ] Публикация (Instagram Graph API)
 - [ ] Карусели — отдельный продукт, пока не начат
