@@ -23,6 +23,11 @@ captions.py — накладывает субтитры на видео по г�
     python captions.py --in tight.mp4 --words words.json --out final.mp4
     python captions.py --in tight.mp4 --words words.json --out final.mp4 \
         --words-per-phrase 3 --highlight-color FFC800 --font-size 84
+
+    # Поднять субтитры выше — например, если в Instagram текст перекрывается
+    # подписью/аватаркой/иконками интерфейса снизу экрана:
+    python captions.py --in tight.mp4 --words words.json --out final.mp4 \
+        --margin-v 260
 """
 import argparse
 import json
@@ -110,7 +115,8 @@ def wrap_and_fit(words_upper: list[str], font_path: Path, base_size: int, min_si
 
 def build_ass(phrases: list[list[dict]], font_family: str, font_path: Path,
               base_size: int, min_size: int, highlight_bgr: str, default_bgr: str,
-              outline_px: int, play_res: tuple[int, int], margin_h_pct: float) -> str:
+              outline_px: int, play_res: tuple[int, int], margin_h_pct: float,
+              margin_v: int) -> str:
     width, height = play_res
     margin_h = int(width * margin_h_pct)
     safe_width = width - 2 * margin_h
@@ -122,7 +128,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, Bold, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV
-Style: Default,{font_family},{base_size},&H00{default_bgr}&,&H00000000&,0,1,{outline_px},0,2,{margin_h},{margin_h},110
+Style: Default,{font_family},{base_size},&H00{default_bgr}&,&H00000000&,0,1,{outline_px},0,2,{margin_h},{margin_h},{margin_v}
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -183,6 +189,10 @@ def main() -> None:
     ap.add_argument("--highlight-color", default="FFC800", help="цвет подсветки произносимого слова RRGGBB")
     ap.add_argument("--margin-pct", type=float, default=0.06,
                      help="отступ текста от левого/правого края, доля ширины кадра (0.06 = 6%%)")
+    ap.add_argument("--margin-v", type=int, default=110,
+                     help="отступ текста от низа кадра, px (по умолчанию 110). Увеличь (например "
+                          "до 220-280 на видео 1920 px высотой), если субтитры перекрываются "
+                          "подписью/аватаркой/иконками интерфейса Instagram снизу экрана")
     ap.add_argument("--width", type=int, default=None, help="по умолчанию берётся из самого видео")
     ap.add_argument("--height", type=int, default=None, help="по умолчанию берётся из самого видео")
     ap.add_argument("--keep-ass", action="store_true", help="не удалять .ass файл после рендера")
@@ -212,6 +222,7 @@ def main() -> None:
     ass_text = build_ass(
         phrases, args.font, font_path, args.font_size, args.min_font_size,
         highlight_bgr, default_bgr, args.outline, (width, height), args.margin_pct,
+        args.margin_v,
     )
 
     if args.keep_ass:
